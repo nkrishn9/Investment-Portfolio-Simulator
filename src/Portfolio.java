@@ -1,4 +1,6 @@
 import org.json.*;
+
+import java.io.IOException;
 import java.util.*;
 
 public class Portfolio {
@@ -12,7 +14,6 @@ public class Portfolio {
 	
 	public Portfolio(String fileName){
 		this.stockList = new ArrayList<Stock>();
-	
 	}
 	
 	public boolean buyStock(Scanner reader, boolean isShort){
@@ -43,13 +44,65 @@ public class Portfolio {
 		}
 	}
 	
-	public boolean sellStock(int index, int sharesSell) throws JSONException{
-		if(sharesSell > this.stockList.get(index).numShares)
+
+	public boolean sellStock(Scanner reader){
+		try{
+			System.out.print("Enter which stock you wish to sell (by reference number): ");
+			int index = reader.nextInt() - 1;
+			if(index > this.stockList.size() || index < 0){
+				System.out.println("Invalid input; please try again.\n");
+				return false;
+			}else{
+				if(this.stockList.get(index).isShort){
+					System.out.println("You cannot sell a stock that has been shorted; you must cover it.\n");
+					return false;
+				}else{
+					System.out.print("How many shares of " + this.stockList.get(index).corpName + " do you wish to sell? ");
+					int numShares = reader.nextInt();
+					this.cash += this.stockList.get(index).sell(numShares);
+					System.out.println("The sale was successful.\n");
+					if(stockList.get(index).numShares == 0)
+						stockList.remove(index);
+					return true;
+				}
+			}
+		}catch(JSONException e){
+			System.out.println("There was an issue connecting to the server. Please check your internet connection and restart the program.");
 			return false;
-		this.cash += this.stockList.get(index).sell(sharesSell);
-		if(stockList.get(index).numShares == 0)
-			stockList.remove(index);
-		return true;
+		}catch(Exception e){
+			System.out.println("Invalid; please try again.\n");
+			return false;
+		}
+	}
+	
+	public boolean coverStock(Scanner reader){
+		try{
+			System.out.print("Enter which stock you wish to cover (by reference number): ");
+			int index = reader.nextInt() - 1;
+			if(index > this.stockList.size() || index < 0){
+				System.out.println("Invalid input; please try again.\n");
+				return false;
+			}else{
+				if(!this.stockList.get(index).isShort){
+					System.out.println("You cannot cover a stock that has been bought; you must sell it.\n");
+					return false;
+				}else{
+					System.out.print("How many shares of " + this.stockList.get(index).corpName + " do you wish to cover? ");
+					int numShares = reader.nextInt();
+					this.cash += this.stockList.get(index).cover(numShares);
+					System.out.println("The cover was successful.\n");
+					if(stockList.get(index).numShares == 0)
+						stockList.remove(index);
+					return true;
+				}
+			}
+		}catch(JSONException e){
+			System.out.println("There was an issue connecting to the server. Please check your internet connection and restart the program.");
+			return false;
+		}catch(Exception e){
+			System.out.println("Invalid; please try again.\n");
+			return false;
+		}
 	}
 	
 	public boolean deleteStock(int index){
@@ -59,7 +112,7 @@ public class Portfolio {
 		return true;
 	}
 
-	public double getStockValue() throws JSONException{
+	public double getStockValue() throws JSONException, IOException{
 		double totalRevenue = 0;
 		for(int i = 0; i < this.stockList.size(); i++){
 			if(!this.stockList.get(i).isShort)
@@ -78,7 +131,7 @@ public class Portfolio {
 		System.out.println();
 	}
 	
-	public void displayStocks(){
+	public void displayStocks() throws IOException{
 		if(this.stockList.isEmpty())
 			System.out.println("No Stock Investments");
 		for(int i = 0; i < this.stockList.size(); i++){
@@ -104,7 +157,7 @@ public class Portfolio {
 		}
 	}
 	
-	public void displayFooter(){
+	public void displayFooter() throws IOException{
 		for(int i = 0; i < 112; i++){
 			System.out.print("-");
 		}
@@ -129,13 +182,13 @@ public class Portfolio {
 		System.out.format("%12s:    %+,21.2f\n", "Total Assets", stockAssets + this.cash);
 	}
 	
-	public void printInfo(){
+	public void printInfo() throws IOException{
 		this.displayHeader();
 		this.displayStocks();
 		this.displayFooter();
 	}
 	
-	public void userInterface(){
+	public void userInterface() throws IOException{
 		Scanner reader = new Scanner(System.in);
 		boolean toQuit = false;
 		do{
@@ -148,26 +201,7 @@ public class Portfolio {
 				this.buyStock(reader, false);
 				break;
 			case "sell":
-				try{
-					System.out.print("Enter which stock you wish to sell (by reference number): ");
-					int index = reader.nextInt() - 1;
-					if(index > this.stockList.size() || index < 0)
-						System.out.println("Invalid input; please try again.\n");
-					else{
-						if(this.stockList.get(index).isShort){
-							System.out.println("You cannot sell a stock that has been shorted; you must cover it.\n");
-						}else{
-							System.out.print("How many shares of " + this.stockList.get(index).corpName + " do you wish to sell? ");
-							int numShares = reader.nextInt();
-							this.cash += this.stockList.get(index).sell(numShares);
-							System.out.println("The sale was successful.\n");
-						}
-					}
-				}catch(JSONException e){
-					System.out.println("There was an issue connecting to the server. Please check your internet connection and restart the program.");
-				}catch(Exception e){
-					System.out.println("Invalid; please try again.\n");
-				}
+				this.sellStock(reader);
 				break;
 			case "refresh":
 				System.out.println("Refreshing your stocks now...");
@@ -179,7 +213,7 @@ public class Portfolio {
 				this.buyStock(reader, true);
 				break;
 			case "cover":
-				
+				this.coverStock(reader);
 				break;
 			default:
 				System.out.println("Invalid command; please try again.\n");
@@ -189,7 +223,7 @@ public class Portfolio {
 		reader.close();
 	}
 	
-	public static void main(String[]args){
+	public static void main(String[]args) throws IOException, JSONException{
 		Portfolio test = new Portfolio(1000000);
 		test.userInterface();
 	}

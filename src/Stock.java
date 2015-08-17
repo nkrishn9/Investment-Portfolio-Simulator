@@ -17,16 +17,22 @@ public class Stock {
 		this.isShort = shorting;
 	}
 	
-	public double getCurRevenue() throws JSONException{
+	public double getCurRevenue() throws JSONException, IOException{
 		if(!isShort)
 			return (infoGather.getCurrentPrice() - this.purchasePrice) * this.numShares;
 		else
 			return (this.purchasePrice - infoGather.getCurrentPrice()) * this.numShares;
 	}
 	
-	public double sell(int numberSold) throws JSONException{
-		this.numShares = this.numShares - numberSold;
-		return this.infoGather.getCurrentPrice() * numberSold;
+	public double sell(int numSold) throws JSONException, IOException{
+		this.numShares = this.numShares - numSold;
+		return this.infoGather.getCurrentPrice() * numSold;
 	}
+	
+	public double cover(int numCovered) throws JSONException, IOException{
+		this.numShares = this.numShares - numCovered;
+		return (2 * this.purchasePrice * numCovered) - (this.infoGather.getCurrentPrice() * numCovered);
+	}
+	
 	
 }
