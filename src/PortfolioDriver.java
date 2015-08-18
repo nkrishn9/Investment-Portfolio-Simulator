@@ -1,5 +1,4 @@
 import java.io.IOException;
-import java.io.Reader;
 import java.util.Scanner;
 
 public class PortfolioDriver {
@@ -12,7 +11,7 @@ public class PortfolioDriver {
 	public static void fullSim() throws IOException{
 		boolean isDone = false;
 		Scanner reader = new Scanner(System.in);
-		Portfolio portfolio = new Portfolio(100000);
+		Portfolio portfolio = new Portfolio(1000000);
 		do{
 			try{
 				System.out.print("Would you like to start a new simulation or load your previous session? (new/load) ");

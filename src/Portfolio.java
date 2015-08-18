@@ -41,6 +41,7 @@ public class Portfolio {
 			return false;
 		}catch(Exception exception1){
 			System.out.println("Invalid input. Please try again.\n");
+			reader.next();
 			return false;
 		}
 	}
@@ -72,6 +73,7 @@ public class Portfolio {
 			return false;
 		}catch(Exception e){
 			System.out.println("Invalid; please try again.\n");
+			reader.next();
 			return false;
 		}
 	}
@@ -102,6 +104,7 @@ public class Portfolio {
 			return false;
 		}catch(Exception e){
 			System.out.println("Invalid; please try again.\n");
+			reader.next();
 			return false;
 		}
 	}
