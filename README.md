@@ -6,7 +6,7 @@ Users are given 1 million USD at the start of the simulation and can buy/short/s
 
 Installation
 ------------
-Download/Unzip the this package. 
+Download/Unzip this package. 
 Navigate into the resulting directory and issue the following command:
 
 java -jar Portfolio.jar
