@@ -33,6 +33,4 @@ public class Stock {
 		this.numShares = this.numShares - numCovered;
 		return (2 * this.purchasePrice * numCovered) - (this.infoGather.getCurrentPrice() * numCovered);
 	}
-	
-	
 }

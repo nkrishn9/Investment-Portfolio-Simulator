@@ -1,6 +1,11 @@
 import org.json.*;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.*;
 
 public class Portfolio {
@@ -10,10 +15,6 @@ public class Portfolio {
 	public Portfolio(int startingCash){
 		this.stockList = new ArrayList<Stock>();
 		this.cash = startingCash;
-	}
-	
-	public Portfolio(String fileName){
-		this.stockList = new ArrayList<Stock>();
 	}
 	
 	public boolean buyStock(Scanner reader, boolean isShort){
@@ -188,8 +189,7 @@ public class Portfolio {
 		this.displayFooter();
 	}
 	
-	public void userInterface() throws IOException{
-		Scanner reader = new Scanner(System.in);
+	public void userInterface(Scanner reader) throws IOException{
 		boolean toQuit = false;
 		do{
 			System.out.println();
@@ -220,11 +220,47 @@ public class Portfolio {
 				break;
 			}
 		}while(!toQuit);
+		this.savePortfolio();
 		reader.close();
 	}
 	
-	public static void main(String[]args) throws IOException, JSONException{
-		Portfolio test = new Portfolio(1000000);
-		test.userInterface();
+	public void savePortfolio() throws FileNotFoundException, UnsupportedEncodingException{
+		PrintWriter writer = new PrintWriter("saveFile.txt", "UTF-8");
+		writer.println(this.cash);
+		writer.println(this.stockList.size());
+		for(int i = 0; i < this.stockList.size(); i++){
+			Stock toWrite = this.stockList.get(i);
+			writer.println(toWrite.infoGather.symbol + " " + toWrite.purchasePrice + " " + toWrite.numShares + " " + toWrite.isShort);
+		}
+		writer.close();
+	}
+	
+	public boolean loadPortfolio(){
+		try {
+			FileReader inputFile = new FileReader("saveFile.txt");
+			BufferedReader reader = new BufferedReader(inputFile);
+			this.cash = Double.parseDouble(reader.readLine());
+			String numStocksString = reader.readLine();
+			int numStocks = Integer.parseInt(numStocksString);
+			for(int i = 0; i < numStocks; i++){
+				String line = reader.readLine();
+				Scanner liner = new Scanner(line);
+				String symbol = liner.next();
+				double purchasePrice = liner.nextDouble();
+				int numShares = liner.nextInt();
+				boolean isShort = liner.nextBoolean();
+				Stock toAdd = new Stock(symbol, purchasePrice, numShares, isShort);
+				this.stockList.add(toAdd);
+				liner.close();
+			}
+			reader.close();
+		} catch (FileNotFoundException e) {
+			return false;
+		} catch (IOException e) {
+			return false;
+		} catch (JSONException e) {
+			return false;
+		}	
+		return true;
 	}
 }
