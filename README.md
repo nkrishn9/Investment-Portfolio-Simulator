@@ -6,7 +6,7 @@ INSTALLATION
 ------------
 Download/Unzip the this package. 
 Navigate into the resulting directory and issue the following command:
-----------------------
+
 java -jar Portfolio.jar
 
 Feel free to leave an issue report if you find any buys.
